@@ -11,7 +11,13 @@
     "url": "git+https://github.com/roxiness/routify-cli.git"
   },
   "homepage": "https://routify.dev",
-  "keywords": [],
+  "keywords": [
+    "routify",
+    "routify-cli",
+    "routify cli",
+    "routify kit",
+    "cli"
+  ],
   "author": "ghostdevbusiness@gmail.com & the routify team",
   "license": "ISC",
   "bugs": {
