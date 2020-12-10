@@ -1,0 +1,20 @@
+{
+  "name": "routify-cli",
+  "version": "1.0.0",
+  "description": "A powerful cli for simplifying your routify development experience",
+  "main": "index.js",
+  "bin": {
+    "routify-cli": "bin/routify-cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roxiness/routify-cli.git"
+  },
+  "homepage": "https://routify.dev",
+  "keywords": [],
+  "author": "ghostdevbusiness@gmail.com & the routify team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roxiness/routify-cli/issues"
+  }
+}
