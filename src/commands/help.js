@@ -1,7 +1,7 @@
-module.exports = ({ commands }) => {
-    if (Array.isArray(commands)) {
+/* design inspiration from https://npmjs.org/commander */
+module.exports = ({ commands, command }) => {
+    if (Array.isArray(commands) && !command) {
         /* prettier-ignore */
-        /* design inspiration from https://npmjs.org/commander */
         console.log([
             'Global Options:',
             '   -h, --help',
@@ -11,5 +11,13 @@ module.exports = ({ commands }) => {
             ''
         ].join('\n'));
     } else {
+        /* prettier-ignore */
+        console.log([
+            `Usage: routify-cli ${command.usage}`,
+            '',
+            'Options:',
+            '   -h, --help',
+            ...(command.options ? command.options.map(x => `   ${x.usage}`) : [])
+        ].join('\n'));
     }
 };
