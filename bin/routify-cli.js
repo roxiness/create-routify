@@ -11,8 +11,10 @@ const action = commands.filter((x) => x.name == cmd)[0];
 
 if (!action) {
     console.log('No valid command given, showing the help menu:\n');
-    require('../src/commands/help.js')({ commands, args });
+    require('../src/commands/help.js')({ commands });
 } else {
+    if (args.help === true || args.h === true)
+        return require('../src/commands/help.js')({ command: action });
     require(path.join(__dirname, '../src/commands', action.path))({
         commands,
         args
