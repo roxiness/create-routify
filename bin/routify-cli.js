@@ -12,7 +12,7 @@ try {
     const { props, run } = require(joinPath('../src/commands', command));
 
     if (args.has('help', 'h'))
-        return require('../src/commands/help.js')({
+        return require('../commands/special/help.js')({
             command,
             props
         });
