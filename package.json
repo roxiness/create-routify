@@ -24,7 +24,7 @@
     "url": "https://github.com/roxiness/routify-cli/issues"
   },
   "dependencies": {
-    "dashargs": "^4.0.1",
+    "dashargs": "^4.1.2",
     "update-notifier": "^5.0.1"
   }
 }
