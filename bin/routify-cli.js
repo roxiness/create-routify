@@ -9,16 +9,21 @@ const input = dash.strip(process.argv.slice(2).join(' '));
 const command = input.split(' ')[0];
 
 try {
-    const { props, run } = require(joinPath('../src/commands', command));
+    if (!command && args.has('help', 'h'))
+        return require('../commands/help.js').run({ args });
+
+    const { props, run } = require(joinPath('../commands', command + '.js'));
 
     if (args.has('help', 'h'))
-        return require('../commands/special/help.js')({
+        require('../commands/help.js').run({
             command,
-            props
+            props,
+            args
         });
 
     run({ args, input });
-} catch {
+} catch (e) {
+    if (args.debug) console.error(e);
     console.log('Error: Unable to find that subcommand');
 }
 
