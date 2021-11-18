@@ -1,10 +1,12 @@
 {
-  "name": "routify-cli",
-  "version": "0.0.0",
+  "name": "create-routify",
+  "version": "0.0.0-reserve",
   "description": "A powerful cli for simplifying your routify development experience",
   "main": "index.js",
+  "type": "module",
+  "files": [],
   "bin": {
-    "routify-cli": "bin/routify-cli.js"
+    "create-routify": "bin/routify-cli.js"
   },
   "repository": {
     "type": "git",
@@ -12,11 +14,7 @@
   },
   "homepage": "https://routify.dev",
   "keywords": [
-    "routify",
-    "routify-cli",
-    "routify cli",
-    "routify kit",
-    "cli"
+    "routify"
   ],
   "author": "ghostdevbusiness@gmail.com",
   "license": "ISC",
