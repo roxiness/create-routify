@@ -6,11 +6,11 @@
   "type": "module",
   "files": [],
   "bin": {
-    "create-routify": "bin/routify-cli.js"
+    "create-routify": "bin/create-routify.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/roxiness/routify-cli.git"
+    "url": "git+https://github.com/roxiness/create-routify.git"
   },
   "homepage": "https://routify.dev",
   "keywords": [
@@ -19,7 +19,7 @@
   "author": "ghostdevbusiness@gmail.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/roxiness/routify-cli/issues"
+    "url": "https://github.com/roxiness/create-routify/issues"
   },
   "dependencies": {
     "dashargs": "^4.1.2",
