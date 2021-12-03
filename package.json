@@ -6,7 +6,7 @@
   "type": "module",
   "files": [],
   "bin": {
-    "create-routify": "bin/create-routify.js"
+    "create-routify": "./src/bin.js"
   },
   "repository": {
     "type": "git",
