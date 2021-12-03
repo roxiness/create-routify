@@ -13,8 +13,6 @@ export const run = async (args) => {
         k.underline().bold(`Welcome to the ${k.magenta('Routify CLI')}!\n`),
     );
 
-    console.log(args);
-
     if (args.has('version') && versions[args.get('version')])
         return runVersion(args.get('version'), args);
 
