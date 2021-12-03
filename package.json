@@ -23,6 +23,12 @@
   },
   "dependencies": {
     "dashargs": "^4.1.2",
+    "kleur": "^4.1.4",
+    "prompts": "^2.4.2",
     "update-notifier": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.0.14",
+    "@types/update-notifier": "^5.1.0"
   }
 }
