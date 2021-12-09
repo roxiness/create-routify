@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises';
 import prompts from 'prompts';
 import k from 'kleur';
 
@@ -9,9 +10,10 @@ const versions = {
 /** @param {import('dashargs').DashArgs} args */
 export const run = async (args) => {
     console.clear(); // ! REMOVE ME
-    console.log(
-        k.underline().bold(`Welcome to the ${k.magenta('Routify CLI')}!\n`),
-    );
+
+    console.log(`  ${k.dim(`v${'1.0.0'}`)}`);
+    console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
+    console.log();
 
     if (args.has('version') && versions[args.get('version')])
         return runVersion(args.get('version'), args);
