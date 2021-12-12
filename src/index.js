@@ -13,8 +13,6 @@ const versions = {
 
 /** @param {import('dashargs').DashArgs} args */
 export const run = async (args) => {
-    console.clear(); // ! REMOVE ME
-
     console.log(`  ${k.dim(`v${'1.0.0'}`)}`);
     console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
     console.log();
