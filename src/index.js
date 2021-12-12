@@ -35,7 +35,8 @@ export const run = async ({ args }) => {
         { onCancel },
     );
 
-    const projectDir = resolve(args._[0] || '.');
+    const projectName = args._[0] || '.';
+    const projectDir = resolve(projectName.toString());
 
     if (existsSync(projectDir) && readdirSync(projectDir).length > 0) {
         const { proceed } = await prompts(
