@@ -43,7 +43,7 @@ async function getExampleDir() {
         { onCancel },
     );
 
-    return `./${project}`;
+    return `./examples/${project}`;
 }
 
 export const run = async ({ projectDir }) => {
