@@ -6,7 +6,7 @@ import k from 'kleur';
 
 const versions = {
     2: () => import('./versions/two.js'),
-    3: () => import('./versions/three.js'),
+    3: () => import('./versions/three/index.js'),
 };
 
 /** @param {import('dashargs').DashArgs} args */
