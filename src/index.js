@@ -1,5 +1,7 @@
 import { onCancel } from './utils/prompts.js';
 import { mkdir } from 'fs/promises';
+import symbols from 'log-symbols';
+import { relative } from 'path';
 import { resolve } from 'path';
 import prompts from 'prompts';
 import k from 'kleur';
@@ -49,10 +51,29 @@ export const run = async (args) => {
     // TODO make passing dir npm init routify <dir>
     await mkdir(projectDir, { recursive: true });
 
-    runVersion(version, { args, projectDir });
+    await runVersion(version, { args, projectDir });
+
+    console.log();
+    console.log(`  ${k.green('All Done!')}`);
+    console.log();
+    console.log(`  Now you can:`);
+
+    let i = 1;
+
+    console.log(`    ${i++}) cd ${relative(process.cwd(), projectDir)}`);
+    console.log(`    ${i++}) npm install`);
+    console.log(`    ${i++}) npm run dev`);
+
+    console.log();
+
+    console.log(
+        `${symbols.success} If you need help, ${k.blue(
+            'join the Discord',
+        )}: https://discord.com/invite/ntKJD5B`,
+    );
 };
 
 const runVersion = async (version, args) => {
     const { run } = await versions[version]();
-    run(args);
+    return run(args);
 };
