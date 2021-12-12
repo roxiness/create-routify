@@ -43,13 +43,13 @@ export const run = async (args) => {
         { onCancel },
     );
 
-    const projectPath = resolve(projectName);
+    const projectDir = resolve(projectName);
 
     // TODO if dir exists and isn't empty check if it's ok to continue
     // TODO make passing dir npm init routify <dir>
-    await mkdir(projectPath, { recursive: true });
+    await mkdir(projectDir, { recursive: true });
 
-    runVersion(version, args);
+    runVersion(version, { args, projectDir });
 };
 
 const runVersion = async (version, args) => {
