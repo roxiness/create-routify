@@ -1,4 +1,5 @@
 import { onCancel } from './utils/prompts.js';
+import { existsSync, readdirSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import symbols from 'log-symbols';
 import { relative } from 'path';
@@ -11,42 +12,44 @@ const versions = {
     3: () => import('./versions/three/index.js'),
 };
 
-/** @param {import('dashargs').DashArgs} args */
-export const run = async (args) => {
+export const run = async ({ args }) => {
     console.log(`  ${k.dim(`v${'1.0.0'}`)}`);
     console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
     console.log();
 
-    const { version, projectName } = await prompts(
-        [
-            // TODO disable this if version cli opt
-            {
-                type: 'select',
-                name: 'version',
-                message: 'Routify Version:',
-                choices: [
-                    { title: 'Routify 2', value: 2 },
-                    {
-                        title: `Routify 3 ${k.bold().magenta('[BETA]')}`,
-                        value: 3,
-                    },
-                ],
-            },
-            // TODO disable this if file name given
-            {
-                type: 'text',
-                name: 'projectName',
-                message: 'Project Name:   ',
-                initial: 'my-routify-app',
-            },
-        ],
+    const { version } = await prompts(
+        // TODO disable this if version cli opt
+        {
+            type: 'select',
+            name: 'version',
+            message: 'Routify Version:',
+            choices: [
+                { title: 'Routify 2', value: 2 },
+                {
+                    title: `Routify 3 ${k.bold().magenta('[BETA]')}`,
+                    value: 3,
+                },
+            ],
+        },
+
         { onCancel },
     );
 
-    const projectDir = resolve(projectName);
+    const projectDir = resolve(args._[0] || '.');
 
-    // TODO if dir exists and isn't empty check if it's ok to continue
-    // TODO make passing dir npm init routify <dir>
+    if (existsSync(projectDir) && readdirSync(projectDir).length > 0) {
+        const { proceed } = await prompts(
+            {
+                type: 'confirm',
+                message: `Directory is not empty, continue?`,
+                name: 'proceed',
+            },
+            { onCancel },
+        );
+
+        if (!proceed) return onCancel();
+    }
+
     await mkdir(projectDir, { recursive: true });
 
     await runVersion(version, { args, projectDir });
