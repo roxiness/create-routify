@@ -2,9 +2,12 @@
 import updateNotifier from 'update-notifier';
 import { readFile } from 'fs/promises';
 import { run } from '../src/index.js';
-import { argv } from 'dashargs';
+// import { argv } from 'dashargs';
+import minimist from 'minimist';
 
-run(argv());
+const args = minimist(process.argv.slice(2));
+
+run({ args });
 
 try {
     const pkg = await readFile('../package.json', 'utf-8');
