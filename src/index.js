@@ -46,6 +46,7 @@ export const run = async (args) => {
     const projectPath = resolve(projectName);
 
     // TODO if dir exists and isn't empty check if it's ok to continue
+    // TODO make passing dir npm init routify <dir>
     await mkdir(projectPath, { recursive: true });
 
     runVersion(version, args);
