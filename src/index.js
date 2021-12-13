@@ -12,13 +12,11 @@ const versions = {
     3: () => import('./versions/three/index.js'),
 };
 
-export const run = async ({ args }) => {
-    console.log(`  ${k.dim(`v${'1.0.0'}`)}`);
-    console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
-    console.log();
+async function getVersion(args) {
+    const argsVersion = args.v || args.version;
+    if (argsVersion) return argsVersion;
 
     const { version } = await prompts(
-        // TODO disable this if version cli opt
         {
             type: 'select',
             name: 'version',
@@ -31,9 +29,21 @@ export const run = async ({ args }) => {
                 },
             ],
         },
-
         { onCancel },
     );
+
+    return version;
+}
+
+export const run = async ({ args }) => {
+    console.log(`  ${k.dim(`v${'1.0.0'}`)}`);
+    console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
+    console.log();
+
+    const version = await getVersion(args);
+
+    if (!Object.keys(versions).includes(version))
+        return console.log(`  ${k.red(`Version ${version} not found`)}`);
 
     const projectName = args._[0] || '.';
     const projectDir = resolve(projectName.toString());
