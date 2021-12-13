@@ -72,7 +72,9 @@ export const run = async ({ args }) => {
 
     let i = 1;
 
-    console.log(`    ${i++}) cd ${relative(process.cwd(), projectDir)}`);
+    if (relative(process.cwd(), projectDir) != '')
+        console.log(`    ${i++}) cd ${relative(process.cwd(), projectDir)}`);
+
     console.log(`    ${i++}) npm install`);
     console.log(`    ${i++}) npm run dev`);
 
