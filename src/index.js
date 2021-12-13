@@ -42,7 +42,7 @@ export const run = async ({ args }) => {
 
     const version = await getVersion(args);
 
-    if (!Object.keys(versions).includes(version))
+    if (!Object.keys(versions).includes(version.toString()))
         return console.log(`  ${k.red(`Version ${version} not found`)}`);
 
     const projectName = args._[0] || '.';
