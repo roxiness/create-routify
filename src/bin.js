@@ -2,7 +2,6 @@
 import updateNotifier from 'update-notifier';
 import { readFile } from 'fs/promises';
 import { run } from '../src/index.js';
-// import { argv } from 'dashargs';
 import minimist from 'minimist';
 
 const args = minimist(process.argv.slice(2));
