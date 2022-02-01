@@ -5,7 +5,7 @@ Welcome to the new Routiy CLI! This CLI currently supports both version 2 & 3 (b
 # Get Started
 
 ```sh
-npm init routify
+npm init routify@latest
 ```
 
 # CLI Options
