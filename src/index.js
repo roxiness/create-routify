@@ -12,6 +12,12 @@ const versions = {
     3: () => import('./versions/three/index.js'),
 };
 
+const helpText = `  npm init routify [directory-name]
+
+  -h, --help          get the help menu
+  -v, --version       use this to set the version of routify, e.g. 3
+  -f, --force         this option bypasses directory checks, be careful as might overwrite files!`;
+
 async function getVersion(args) {
     const argsVersion = args.v || args.version;
     if (argsVersion) return argsVersion;
@@ -40,7 +46,12 @@ export const run = async ({ args }) => {
     console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
     console.log();
 
+    if (args.h || args.help) {
+        return console.log(helpText);
+    }
+
     const version = await getVersion(args);
+    const force = args.f || args.force;
 
     if (!Object.keys(versions).includes(version.toString()))
         return console.log(`  ${k.red(`Version ${version} not found`)}`);
@@ -48,7 +59,11 @@ export const run = async ({ args }) => {
     const projectName = args._[0] || '.';
     const projectDir = resolve(projectName.toString());
 
-    if (existsSync(projectDir) && readdirSync(projectDir).length > 0) {
+    if (
+        existsSync(projectDir) &&
+        readdirSync(projectDir).length > 0 &&
+        !force
+    ) {
         const { proceed } = await prompts(
             {
                 type: 'confirm',

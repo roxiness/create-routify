@@ -17,5 +17,7 @@ We have designed the cli to be able to be run in headless mode, as such the foll
 ```
 npm init routify [directory-name]
 
+-h, --help          get the help menu
 -v, --version       use this to set the version of routify, e.g. 3
+-f, --force         this option bypasses directory checks, be careful as might overwrite files!
 ```
