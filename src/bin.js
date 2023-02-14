@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import updateNotifier from 'update-notifier';
 import { readFile } from 'fs/promises';
-import { run } from '../src/index.js';
 import minimist from 'minimist';
+import updateNotifier from 'update-notifier';
+import { run } from '../src/index.js';
 
 const args = minimist(process.argv.slice(2));
 

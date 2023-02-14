@@ -1,11 +1,10 @@
-import { onCancel } from './utils/prompts.js';
 import { existsSync, readdirSync } from 'fs';
 import { mkdir } from 'fs/promises';
-import symbols from 'log-symbols';
-import { relative } from 'path';
-import { resolve } from 'path';
-import prompts from 'prompts';
 import k from 'kleur';
+import symbols from 'log-symbols';
+import { relative, resolve } from 'path';
+import prompts from 'prompts';
+import { onCancel } from './utils/prompts.js';
 
 const versions = {
     2: () => import('./versions/two.js'),

@@ -1,9 +1,9 @@
-import { onCancel } from '../../utils/prompts.js';
-import { readdir, cp } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import prompts from 'prompts';
+import { cp, readdir } from 'fs/promises';
 import k from 'kleur';
+import { dirname, join } from 'path';
+import prompts from 'prompts';
+import { fileURLToPath } from 'url';
+import { onCancel } from '../../utils/prompts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -60,6 +60,10 @@ export const run = async ({ projectDir }) => {
                     value: 'skeleton',
                 },
                 {
+                    title: 'Skeleton Project (TS)',
+                    value: 'skeleton-ts',
+                },
+                {
                     title: 'Example Project',
                     value: 'example',
                 },
@@ -68,12 +72,17 @@ export const run = async ({ projectDir }) => {
         { onCancel },
     );
 
-    if (!['skeleton', 'example'].includes(projectType))
+    if (!['skeleton', 'example', 'skeleton-ts'].includes(projectType))
         return console.log(`  ${k.red('Unable to find type ' + projectType)}`);
+
+    const map = {
+        'skeleton-ts': './skeleton-ts',
+        skeleton: './skeleton',
+    };
 
     const exampleDir = join(
         __dirname,
-        projectType == 'skeleton' ? './skeleton' : await getExampleDir(),
+        map[projectType] || (await getExampleDir()),
         '/',
     );
 
