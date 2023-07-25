@@ -1,6 +1,6 @@
 {
   "name": "create-routify",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "A powerful cli for super-powering your routify development experience",
   "main": "index.js",
   "type": "module",
