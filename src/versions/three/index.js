@@ -1,9 +1,11 @@
 import { onCancel } from '../../utils/prompts.js';
-import { readdir, cp } from 'fs/promises';
+import { readdir, cp, rm } from 'fs/promises';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import prompts from 'prompts';
 import k from 'kleur';
+import { getRoutifyExamplesDir } from './utils.js';
+import { existsSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -31,51 +33,41 @@ function text() {
 }
 
 async function getExampleDir() {
-    const projects = await readdir(join(__dirname, './examples'));
+    const routifyExamplesDir = getRoutifyExamplesDir();
+    let dirNames = await readdir(routifyExamplesDir);
+    const projects = await Promise.all(
+        dirNames
+            .map((name) => join(routifyExamplesDir, name))
+            .filter((dir) => existsSync(join(dir, 'manifest.js')))
+            .map((dir) =>
+                import(pathToFileURL(join(dir, 'manifest.js')).pathname).then(
+                    (m) => ({ dir, manifest: m.default }),
+                ),
+            ),
+    );
 
     const { project } = await prompts(
         {
-            message: 'Please select a example project',
+            message: 'Please select a starter template',
             name: 'project',
             type: 'select',
-            choices: projects.map((value) => ({ title: value, value })),
+            choices: projects.map((value) => ({
+                title: value.manifest.name,
+                description: value.manifest.description,
+                value,
+            })),
         },
         { onCancel },
     );
 
-    return `./examples/${project}`;
+    return project.dir;
 }
 
 export const run = async ({ projectDir }) => {
     text();
 
-    const { projectType } = await prompts(
-        {
-            type: 'select',
-            name: 'projectType',
-            message: 'What template would you like?',
-            choices: [
-                {
-                    title: 'Skeleton Project',
-                    value: 'skeleton',
-                },
-                {
-                    title: 'Example Project',
-                    value: 'example',
-                },
-            ],
-        },
-        { onCancel },
-    );
-
-    if (!['skeleton', 'example'].includes(projectType))
-        return console.log(`  ${k.red('Unable to find type ' + projectType)}`);
-
-    const exampleDir = join(
-        __dirname,
-        projectType == 'skeleton' ? './skeleton' : await getExampleDir(),
-        '/',
-    );
+    const exampleDir = await getExampleDir();
 
     await cp(exampleDir, projectDir, { recursive: true });
+    await rm(join(projectDir, 'manifest.js'));
 };
