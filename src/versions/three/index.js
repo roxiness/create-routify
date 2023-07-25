@@ -37,13 +37,24 @@ async function getExampleDir() {
     let dirNames = await readdir(routifyExamplesDir);
     const projects = await Promise.all(
         dirNames
-            .map((name) => join(routifyExamplesDir, name))
-            .filter((dir) => existsSync(join(dir, 'manifest.js')))
-            .map((dir) =>
-                import(pathToFileURL(join(dir, 'manifest.js')).pathname).then(
-                    (m) => ({ dir, manifest: m.default }),
-                ),
-            ),
+            .map((name) => ({ name, dir: join(routifyExamplesDir, name) }))
+            .filter(({ dir }) => existsSync(join(dir, 'manifest.js')))
+            .map(async ({ dir, name }) => {
+                try {
+                    return await import(
+                        pathToFileURL(join(dir, 'manifest.js')).pathname
+                    ).then((m) => ({ dir, name, manifest: m.default }));
+                } catch (err) {
+                    return {
+                        dir,
+                        name,
+                        manifest: {
+                            name,
+                            description: 'Could not read template info',
+                        },
+                    };
+                }
+            }),
     );
 
     const { project } = await prompts(
@@ -51,7 +62,7 @@ async function getExampleDir() {
             message: 'Please select a starter template',
             name: 'project',
             type: 'select',
-            choices: projects.map((value) => ({
+            choices: projects.filter(Boolean).map((value) => ({
                 title: value.manifest.name,
                 description: value.manifest.description,
                 value,

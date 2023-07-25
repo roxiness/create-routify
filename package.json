@@ -1,6 +1,6 @@
 {
   "name": "create-routify",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A powerful cli for super-powering your routify development experience",
   "main": "index.js",
   "type": "module",
@@ -32,7 +32,7 @@
     "url": "https://github.com/roxiness/create-routify/issues"
   },
   "dependencies": {
-    "@roxi/routify": "^3.0.0-next",
+    "@roxi/routify": "^3.0.0-next.172",
     "kleur": "^4.1.5",
     "log-symbols": "^5.1.0",
     "minimist": "^1.2.7",
