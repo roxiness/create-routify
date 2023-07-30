@@ -1,13 +1,15 @@
 {
   "name": "create-routify",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A powerful cli for super-powering your routify development experience",
   "main": "index.js",
   "type": "module",
   "files": [
     "src",
+    "config.js",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "CONTRIBUTORS.md"
   ],
   "bin": {
     "create-routify": "./src/bin.js"
