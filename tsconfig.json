@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowJs": true,
+        "checkJs": true,
+        "moduleResolution": "Node"
+    },
+    "include": ["src", "typedef.js"]
+}

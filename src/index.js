@@ -1,108 +1,330 @@
-import { onCancel } from './utils/prompts.js';
+/**
+ * @typedef {Object} Options
+ * @property {string} dir
+ * @property {string} projectDir
+ * @property {string} version
+ * @property {string} starterTemplate
+ * @property {Template} template
+ * @property {boolean} force
+ * @property {boolean} headless
+ * @property {boolean} debug
+ * @property {''|'npm'|'yarn'|'pnpm'} packageManager
+ * @property {string[]} features
+ *
+ *
+ */
+
+import { mkdir, cp, rm } from 'fs/promises';
 import { existsSync, readdirSync } from 'fs';
-import { mkdir } from 'fs/promises';
+import { join, relative, resolve } from 'path';
 import symbols from 'log-symbols';
-import { relative } from 'path';
-import { resolve } from 'path';
-import prompts from 'prompts';
-import k from 'kleur';
+import color from 'picocolors';
+import * as p from '@clack/prompts';
+import { emitter, writePrettierConfig } from './utils/index.js';
+import { addTests, removeTests } from './utils/patcher/test/index.js';
+import { getTemplatesFromRepos } from './utils/repos.js';
 
-const versions = {
-    2: () => import('./versions/two.js'),
-    3: () => import('./versions/three/index.js'),
-};
-
-const helpText = `  npm init routify [directory-name]
-
-  -h, --help          get the help menu
-  -v, --version       use this to set the version of routify, e.g. 3
-  -f, --force         this option bypasses directory checks, be careful as might overwrite files!`;
-
-async function getVersion(args) {
-    const argsVersion = args.v || args.version;
-    if (argsVersion) return argsVersion;
-
-    const { version } = await prompts(
-        {
-            type: 'select',
-            name: 'version',
+const prompts = {
+    version: () =>
+        p.select({
             message: 'Routify Version:',
-            choices: [
-                { title: 'Routify 2', value: 2 },
+            options: [
+                { label: 'Routify 2', value: 2 },
                 {
-                    title: `Routify 3 ${k.bold().magenta('[BETA]')}`,
+                    label: `Routify 3`,
                     value: 3,
+                    hint: 'This is a beta version',
                 },
             ],
-        },
-        { onCancel },
+            initialValue: 3,
+        }),
+    dir: () =>
+        p.text({
+            message: 'Directory name:',
+            initialValue: '',
+            // hint: 'Leave empty to use current directory',
+            defaultValue: '.',
+            placeholder: 'Leave empty to use current directory',
+        }),
+    overwrite: () =>
+        p.confirm({
+            message: 'Directory is not empty, continue?',
+            initialValue: false,
+        }),
+    selectFeatures: (availableFeatures) =>
+        p.multiselect({
+            message: 'Select features:',
+            options: availableFeatures,
+            initialValues: availableFeatures
+                .filter((f) => f.initial)
+                .map((f) => f.value),
+        }),
+    selectTemplate: (templates) =>
+        p.select({
+            message: 'Select template:',
+            options: templates.map((template) => ({
+                label: template.manifest?.name || template.name,
+                value: template.name,
+                hint: template.manifest?.description || template.description,
+            })),
+            initialValue: 'starter-basic',
+        }),
+    selectPackageManager: () =>
+        p.select({
+            message: 'Install dependencies with:',
+            options: [
+                { label: "Don't install", value: '' },
+                { label: 'npm', value: 'npm' },
+                { label: 'pnpm', value: 'pnpm' },
+                { label: 'yarn', value: 'yarn' },
+            ],
+            initialValue: '',
+        }),
+    nextSteps: (dir, packageManager) => {
+        const steps = [
+            dir === '.' ? '' : `cd ${dir}`,
+            packageManager ? '' : 'npm install',
+            `${packageManager || 'npm'} run dev`,
+        ]
+            .filter(Boolean)
+            .map((step, i) => `${i + 1}. ${step}`)
+            .join('\n');
+
+        return `Next steps: \n${steps}`;
+    },
+};
+
+const check = {
+    existingDir: async (options) => {
+        const proceed =
+            !existsSync(options.projectDir) ||
+            !readdirSync(options.projectDir).length ||
+            options.force ||
+            (await prompts.overwrite());
+
+        if (!proceed) {
+            p.cancel('Directory not empty');
+            process.exit();
+        }
+    },
+    version: (version) => {
+        if ([2, 3].includes(version.toString())) {
+            p.cancel(`Version ${version} not found`);
+            process.exit();
+        }
+    },
+};
+
+const getAvailableFeatures = (template) => {
+    const features = template.manifest.features || [];
+    if (template.manifest.test)
+        features.push({
+            label: 'test',
+            value: 'test',
+            hint: 'Add test files',
+            initial: true,
+        });
+    features.push({
+        label: 'prettier',
+        value: 'prettier',
+        hint: 'Add prettier config',
+        initial: true,
+    });
+    return features;
+};
+
+/**
+ *
+ * @param {} options
+ * @param {TemplateConfig} configs
+ */
+async function runPrompts(options, configs) {
+    console.clear();
+    p.intro(`${color.bgMagenta(color.black(' Routify CLI '))}`);
+
+    options.version = options.version || (await prompts.version());
+    check.version(options.version);
+    const config = configs.versions[options.version];
+    await setTemplates(configs, options);
+    options.dir = options.dir || (await prompts.dir());
+
+    options.projectDir = resolve(options.dir);
+    await check.existingDir(options);
+
+    while (!options.starterTemplate) {
+        const refreshOption = {
+            name: '[Refresh templates]',
+            hint: 'Update templates from remote',
+        };
+        const customTemplates = {
+            name: '[Include custom templates]',
+            hint: 'Include templates from 3rd party repos',
+        };
+        const templates = [...options.templates];
+        if (!options.forceRefresh) templates.push(refreshOption);
+        if (
+            !options.customTemplates &&
+            config.templatesRepos.find((repo) => !repo.includeByDefault)
+        )
+            templates.push(customTemplates);
+        options.starterTemplate =
+            options.starterTemplate ||
+            (await prompts.selectTemplate(templates));
+
+        if (options.starterTemplate === '[Refresh templates]') {
+            options.forceRefresh = true;
+            await setTemplates(configs, options);
+            options.starterTemplate = null;
+        }
+        if (options.starterTemplate === '[Include custom templates]') {
+            options.customTemplates = true;
+            await setTemplates(configs, options);
+            options.starterTemplate = null;
+        }
+    }
+
+    options.template = options.templates.find(
+        (t) => t.name === options.starterTemplate,
     );
 
-    return version;
+    if (!options.template)
+        p.cancel(`Template ${options.starterTemplate} not found`);
+
+    options.features =
+        options.features ||
+        (await prompts.selectFeatures(getAvailableFeatures(options.template)));
+
+    options.packageManager =
+        options.packageManager || (await prompts.selectPackageManager());
 }
 
-export const run = async ({ args }) => {
-    console.log(`  ${k.dim(`v${'1.0.0'}`)}`);
-    console.log(`  ${k.bold().magenta('Routify')} ${k.magenta().dim('CLI')}`);
-    console.log();
+const copy = async (options) => {
+    const s = p.spinner();
+    s.start('Copying template to project directory');
+    await mkdir(options.projectDir, { recursive: true });
 
-    if (args.h || args.help) {
-        return console.log(helpText);
+    await cp(options.template.dir, options.projectDir, {
+        recursive: true,
+    });
+    if (existsSync(join(options.projectDir, 'manifest.js')))
+        await rm(join(options.projectDir, 'manifest.js'));
+    s.stop('Copied template to project directory');
+};
+
+const install = async (options) => {
+    if (options.packageManager) {
+        const s = p.spinner();
+
+        const { exec } = await import('child_process');
+        const { packageManager } = options;
+        const cwd = relative(process.cwd(), options.projectDir);
+        const cmd = `${packageManager} install`;
+        s.start(`Installing via ${packageManager}`);
+        await new Promise((resolve, reject) => {
+            exec(cmd, { cwd }, (err, stdout, stderr) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(stdout);
+                }
+            });
+        });
+
+        s.stop('Installed via pnpm');
     }
+};
 
-    const version = await getVersion(args);
-    const force = args.f || args.force;
+/**
+ *
+ * @param {Options} options
+ */
+export const manageTests = async (options) => {
+    const { test } = options.template.manifest;
+    const dir = options.projectDir;
+    const shouldAddTest = options.features.includes('test');
+    if (shouldAddTest) {
+        await addTests(dir, test);
+    } else await removeTests(dir);
+};
 
-    if (!Object.keys(versions).includes(version.toString()))
-        return console.log(`  ${k.red(`Version ${version} not found`)}`);
-
-    const projectName = args._[0] || '.';
-    const projectDir = resolve(projectName.toString());
-
-    if (
-        existsSync(projectDir) &&
-        readdirSync(projectDir).length > 0 &&
-        !force
-    ) {
-        const { proceed } = await prompts(
-            {
-                type: 'confirm',
-                message: `Directory is not empty, continue?`,
-                name: 'proceed',
-            },
-            { onCancel },
-        );
-
-        if (!proceed) return onCancel();
+/**
+ * @param {Options} options
+ */
+const handleFeatures = async (options) => {
+    const s = p.spinner();
+    s.start('Set up features');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await manageTests(options);
+    if (options.features.includes('prettier')) {
+        writePrettierConfig(options.projectDir);
     }
+    s.stop('Set up features');
+};
 
-    await mkdir(projectDir, { recursive: true });
+/**
+ *
+ * @param {*} options
+ * @param {TemplateConfig} configs
+ */
+const normalizeOptions = async (options, configs) => {
+    options.version = options.version || 3;
+    const config = configs.versions[options.version];
+    await setTemplates(configs, options);
+    options.projectDir = resolve(options.dir);
+    options.starterTemplate = options.starterTemplate || config.defaultTemplate;
+    options.template = options.templates.find(
+        (t) => t.name === options.starterTemplate,
+    );
+    options.features = options.features || [];
+    check.version(options.version);
+    if (!options.template)
+        p.cancel(`Template ${options.starterTemplate} not found`);
+};
 
-    await runVersion(version, { args, projectDir });
-
-    console.log();
-    console.log(`  ${k.green('All Done!')}`);
-    console.log();
-    console.log(`  Now you can:`);
-
-    let i = 1;
-
-    if (relative(process.cwd(), projectDir) != '')
-        console.log(`    ${i++}) cd ${relative(process.cwd(), projectDir)}`);
-
-    console.log(`    ${i++}) npm install`);
-    console.log(`    ${i++}) npm run dev`);
-
-    console.log();
-
-    console.log(
-        `${symbols.success} If you need help, ${k.blue(
-            'join the Discord',
-        )}: https://discord.com/invite/ntKJD5B`,
+/**
+ *
+ * @param {TemplateConfig} configs
+ * @param {*} options
+ */
+const setTemplates = async (configs, options) => {
+    const config = configs.versions[options.version];
+    options.templates = await getTemplatesFromRepos(
+        config.templatesRepos,
+        options.forceRefresh,
+        options.debug,
     );
 };
 
-const runVersion = async (version, args) => {
-    const { run } = await versions[version]();
-    return run(args);
+export const run = async (options) => {
+    const s = p.spinner();
+    emitter.on('download', (url) => s.start(`Downloading ${url}`));
+    emitter.on('downloaded', (url) => s.stop(`Downloaded ${url}`));
+    const configs = (await import('../config.js')).default;
+
+    const tools = { prompts: p };
+    // console.log(options);
+    // process.exit();
+    if (!options.headless) await runPrompts(options, configs);
+    else await normalizeOptions(options, configs);
+
+    await copy(options);
+    await handleFeatures(options);
+    const { preInstall, postInstall } = options.template.manifest;
+    if (preInstall) await preInstall(options, tools);
+    await install(options);
+    if (postInstall) await postInstall(options, tools);
+
+    p.note(
+        prompts.nextSteps(options.dir, options.packageManager) +
+            `\n\n${
+                symbols.success
+            } Need help? Join us on discord: ${color.underline(
+                color.bgMagenta('https://discord.com/invite/ntKJD5B'),
+            )}\n${
+                symbols.success
+            } Follow our twitter to get updates: ${color.underline(
+                color.bgMagenta('https://twitter.com/routifyjs'),
+            )}`,
+    );
+    p.outro('Happy coding!');
 };
