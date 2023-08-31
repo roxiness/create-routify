@@ -63,6 +63,9 @@ const installVitest = async (dir) => {
     test: {
         environment: 'jsdom',
         globals: true,
+        server: {
+            deps: { inline: ["@roxi/routify"] },
+        }          
     },
     plugins: [`,
             ),
