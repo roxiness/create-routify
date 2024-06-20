@@ -30,8 +30,7 @@ beforeAll(async () => {
     await import('../.routify/routify-init.js')
     router = globalThis.__routify.routers[0]
     await router.ready()
-    // wait for components to render
-    await new Promise((resolve) => setTimeout(resolve))
+    await router.activeRoute.get().rendered
 })
 
 ${tests.map(resolveTestTemplate).join('\n\n')}
