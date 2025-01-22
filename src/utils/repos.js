@@ -1,7 +1,7 @@
 import { readdir } from 'fs/promises';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { existsSync } from 'fs';
+import { existsSync, rmSync } from 'fs';
 import { createRequire } from 'module';
 import download from 'download-git-repo';
 import { emitter } from './index.js';
@@ -22,6 +22,7 @@ const ensureRepo = async (url, force, onDownload) => {
 
     // if repo doesn't exist, download it
     if (!existsSync(repoPath) || force) {
+        rmSync(repoPath, { recursive: true, force: true });
         emitter.emit('download', url);
         if (onDownload) onDownload();
         await new Promise((resolve, reject) =>
