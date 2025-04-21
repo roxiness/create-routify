@@ -312,8 +312,6 @@ const setTemplates = async (configs, options) => {
 };
 
 const removeExcludedFiles = async (options) => {
-    console.log('options.template.manifest.exclude');
-    console.log(options);
     const exclude = options.template.manifest.exclude.map((file) =>
         join(options.projectDir, file),
     );
