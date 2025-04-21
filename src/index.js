@@ -206,8 +206,6 @@ const copy = async (options) => {
     await cp(options.template.dir, options.projectDir, {
         recursive: true,
     });
-    if (existsSync(join(options.projectDir, 'manifest.js')))
-        await rm(join(options.projectDir, 'manifest.js'));
     s.stop('Copied template to project directory');
 };
 
@@ -281,6 +279,24 @@ const normalizeOptions = async (options, configs) => {
         p.cancel(`Template ${options.starterTemplate} not found`);
 };
 
+const normalizeManifest = (manifest) => ({
+    features: [],
+    preInstall: () => null,
+    postInstall: () => null,
+    exclude: [
+        'node_modules',
+        'package-lock.json',
+        'pnpm-lock.yaml',
+        'yarn.lock',
+        'dist',
+        '.pnpmfile.cjs',
+        'manifest.js',
+        '.routify',
+    ],
+    test: { tests: [] },
+    ...manifest,
+});
+
 /**
  *
  * @param {TemplateConfig} configs
@@ -292,6 +308,21 @@ const setTemplates = async (configs, options) => {
         config.templatesRepos,
         options.forceRefresh,
         options.debug,
+    );
+};
+
+const removeExcludedFiles = async (options) => {
+    console.log('options.template.manifest.exclude');
+    console.log(options);
+    const exclude = options.template.manifest.exclude.map((file) =>
+        join(options.projectDir, file),
+    );
+    await Promise.all(
+        exclude.map(async (file) => {
+            if (existsSync(file)) {
+                await rm(file, { recursive: true, force: true });
+            }
+        }),
     );
 };
 
@@ -307,12 +338,15 @@ export const run = async (options) => {
     if (!options.headless) await runPrompts(options, configs);
     else await normalizeOptions(options, configs);
 
+    options.template.manifest = normalizeManifest(options.template.manifest);
+
     await copy(options);
     await handleFeatures(options);
     const { preInstall, postInstall } = options.template.manifest;
-    if (preInstall) await preInstall(options, tools);
+    await preInstall(options, tools);
     await install(options);
-    if (postInstall) await postInstall(options, tools);
+    await postInstall(options, tools);
+    await removeExcludedFiles(options);
 
     p.note(
         prompts.nextSteps(options.dir, options.packageManager) +

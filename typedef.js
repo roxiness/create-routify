@@ -36,6 +36,7 @@
  * @property {{label: string, value: string, hint?: string, initial?: boolean}[]} features
  * @property {function} postInstall
  * @property {function} preInstall
+ * @property {string[]} exclude - the files to exclude from the template
  * @property {any=} error
  *
  * @typedef {TestTemplateString | TestTemplateObject} TestTemplate
