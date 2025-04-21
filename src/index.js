@@ -342,9 +342,9 @@ export const run = async (options) => {
     await handleFeatures(options);
     const { preInstall, postInstall } = options.template.manifest;
     await preInstall(options, tools);
+    await removeExcludedFiles(options);
     await install(options);
     await postInstall(options, tools);
-    await removeExcludedFiles(options);
 
     p.note(
         prompts.nextSteps(options.dir, options.packageManager) +
