@@ -230,7 +230,7 @@ const install = async (options) => {
             });
         });
 
-        s.stop('Installed via pnpm');
+        s.stop('Installed via ' + packageManager);
     }
 };
 
