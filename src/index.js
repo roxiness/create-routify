@@ -184,7 +184,7 @@ async function runPrompts(options, configs) {
     }
 
     options.template = options.templates.find(
-        (t) => t.name === options.starterTemplate,
+        (t) => t.manifest.name === options.starterTemplate,
     );
 
     if (!options.template)
@@ -327,7 +327,9 @@ const removeExcludedFiles = async (options) => {
 export const run = async (options) => {
     const s = p.spinner();
     emitter.on('download', (url) => s.start(`Downloading ${url}`));
-    emitter.on('downloaded', (url) => s.stop(`Downloaded ${url}`));
+    emitter.on('downloaded', ({ url, path }) =>
+        s.stop(`Downloaded ${url} -> ${path}`),
+    );
     const configs = (await import('../config.js')).default;
 
     const tools = { prompts: p };

@@ -31,7 +31,7 @@ const ensureRepo = async (url, force, onDownload) => {
                 else resolve(null);
             }),
         );
-        emitter.emit('downloaded', url);
+        emitter.emit('downloaded', { url, path: repoPath });
     }
 
     // return path to repo
