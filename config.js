@@ -28,7 +28,7 @@ export default {
             defaultTemplate: 'basic-starter',
             templatesRepos: [
                 {
-                    url: 'roxiness/routify#next',
+                    url: 'roxiness/routify#main',
                     // url: 'local:../routify',
                     path: 'examples',
                     templateType: 'directory',

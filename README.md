@@ -1,6 +1,6 @@
 # Create Routify
 
-Welcome to the new Routiy CLI! This CLI currently supports both version 2 & 3 (beta) of Routify.
+Welcome to the new Routiy CLI! This CLI currently supports both version 2 & 3 of Routify.
 
 # Get Started
 
@@ -30,4 +30,5 @@ npm init routify [directory-name]
 ```
 
 ### Contributors
+
 See [CONTRIBUTORS.md](CONTRIBUTORS.md)
