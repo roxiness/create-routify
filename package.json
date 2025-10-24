@@ -1,47 +1,47 @@
 {
-  "name": "create-routify",
-  "version": "1.5.8",
-  "description": "A powerful cli for super-powering your routify development experience",
-  "main": "index.js",
-  "type": "module",
-  "files": [
-    "src",
-    "config.js",
-    "LICENSE",
-    "README.md",
-    "CONTRIBUTORS.md"
-  ],
-  "bin": {
-    "create-routify": "./src/bin.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/roxiness/create-routify.git"
-  },
-  "homepage": "https://routify.dev",
-  "keywords": [
-    "routify",
-    "create routify",
-    "npm init",
-    "@roxi/routify",
-    "npm init routify",
-    "routify 3",
-    "routify 2"
-  ],
-  "author": "ghostdevbusiness@gmail.com",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/roxiness/create-routify/issues"
-  },
-  "dependencies": {
-    "@clack/prompts": "^0.6.3",
-    "commander": "^11.0.0",
-    "download-git-repo": "^3.0.2",
-    "log-symbols": "^5.1.0",
-    "picocolors": "^1.0.0",
-    "update-notifier": "^6.0.2"
-  },
-  "devDependencies": {
-    "@types/update-notifier": "^6.0.1"
-  }
+    "name": "create-routify",
+    "version": "1.6.0",
+    "description": "A powerful cli for super-powering your routify development experience",
+    "main": "index.js",
+    "type": "module",
+    "files": [
+        "src",
+        "config.js",
+        "LICENSE",
+        "README.md",
+        "CONTRIBUTORS.md"
+    ],
+    "bin": {
+        "create-routify": "./src/bin.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/roxiness/create-routify.git"
+    },
+    "homepage": "https://routify.dev",
+    "keywords": [
+        "routify",
+        "create routify",
+        "npm init",
+        "@roxi/routify",
+        "npm init routify",
+        "routify 3",
+        "routify 2"
+    ],
+    "author": "ghostdevbusiness@gmail.com",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/roxiness/create-routify/issues"
+    },
+    "dependencies": {
+        "@clack/prompts": "^0.6.3",
+        "commander": "^11.0.0",
+        "download-git-repo": "^3.0.2",
+        "log-symbols": "^5.1.0",
+        "picocolors": "^1.0.0",
+        "update-notifier": "^6.0.2"
+    },
+    "devDependencies": {
+        "@types/update-notifier": "^6.0.1"
+    }
 }
