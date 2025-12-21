@@ -38,4 +38,4 @@ jobs:
           jq --arg v "$TAG" '.version=$v' package.json > tmp.$$.json && mv tmp.$$.json package.json
 
       - name: Publish (OIDC trusted publishing)
-        run: pnpm publish --provenance --access public
+        run: npm publish --provenance --access public
