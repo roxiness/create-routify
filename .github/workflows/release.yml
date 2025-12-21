@@ -20,10 +20,14 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
 
+      # Ensure npm CLI is new enough for Trusted Publishing
+      - name: Upgrade npm
+        run: npm i -g npm@11.5.1
+
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
-            version: 9
+          version: 9
 
       - name: Install
         run: pnpm install
@@ -33,5 +37,5 @@ jobs:
           TAG=${GITHUB_REF##*/}
           jq --arg v "$TAG" '.version=$v' package.json > tmp.$$.json && mv tmp.$$.json package.json
 
-      - name: Publish
-        run: pnpm publish --no-git-checks --provenance --access public
+      - name: Publish (OIDC trusted publishing)
+        run: pnpm publish --provenance --access public
