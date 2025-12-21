@@ -116,17 +116,12 @@ const check = {
 };
 
 const getAvailableFeatures = (template) => {
-    console.log(
-        'DEBUG: Available Templates:',
-        template ? template.name : 'undefined template',
-    );
     if (!template || !template.manifest) {
         console.error(
             'ERROR: Template or manifest is undefined. This likely means the selected starter template was not found.',
         );
         return [];
     }
-    console.log('DEBUG: Using template manifest:', template.manifest);
 
     const features = template.manifest.features || [];
     if (template.manifest.test)
