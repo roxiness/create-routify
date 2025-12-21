@@ -191,7 +191,9 @@ async function runPrompts(options, configs) {
     }
 
     options.template = options.templates.find(
-        (t) => t.manifest.name === options.starterTemplate,
+        (t) =>
+            t.manifest.name === options.starterTemplate ||
+            t.name === options.starterTemplate,
     );
 
     if (!options.template)
