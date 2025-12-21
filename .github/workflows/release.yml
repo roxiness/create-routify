@@ -7,20 +7,23 @@ on:
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Node 16
-        uses: actions/setup-node@v1
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           registry-url: https://registry.npmjs.org/
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
+        uses: pnpm/action-setup@v4
         with:
-            version: 7.0.0
+            version: 9
 
       - name: Install
         run: pnpm install
@@ -30,10 +33,5 @@ jobs:
           TAG=${GITHUB_REF##*/}
           jq --arg v "$TAG" '.version=$v' package.json > tmp.$$.json && mv tmp.$$.json package.json
 
-
       - name: Publish
-        run: |
-          pnpm config set "//registry.npmjs.org/:_authToken" "${NPM_TOKEN}"
-          pnpm publish --no-git-checks
-        env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+        run: pnpm publish --no-git-checks --provenance --access public
